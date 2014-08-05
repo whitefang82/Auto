@@ -13,11 +13,15 @@
  Mögliche Bewegung 
  1 für Uhrzeigersinn
  -1 für Gegenuhrzeigersinn
- 0 für Error - keybounce */
+ 0 für Error - keybounce 
+ 00 - 0
+ 01 - 0
+ 10 - -1
+ 11 - 1 */
  int bump[] = {0,0,-1,1}; 
 
  void setup(){
-    speed = 0; // Anfangwert = die GEschwindigkeit der Motoren
+    speed = 0; // Anfangwert = die Geschwindigkeit der Motoren
     /* Set-up für Serial Monitor, um den wert zu kontrollieren */
     Serial.begin(115200); // beachten monitor baud rate has das gleiche
     Serial.println("Encoder Ready"); // Im Serial Monitor 
@@ -25,11 +29,10 @@
     Serial.println(level); // 
     pinMode(pinA,INPUT); // Pin A & B von encoder sind input Typ
     pinMode(pinB,INPUT);
-    /* Writing to an Input pin turns on an internal pull up resistor */
     digitalWrite(pinA,HIGH);
     digitalWrite(pinB,HIGH); 
-    /* Set up to call our knob function any time pinA rises */
-    attachInterrupt(0,knobTurned,RISING); // wenn pin A HIGH ist, verwendet knobTurned()
+    
+    attachInterrupt(0,knopfTurned,RISING); // wenn pin A HIGH ist, wird knopfTurned() ausgelöst
     
     pinMode(22, OUTPUT); //Direction motor FL
     pinMode(23, OUTPUT); //Hand-brake motor FL 
@@ -48,24 +51,31 @@
  else {
  backward;
  }
+}
 
- void knobTurned(){
- /* AH HA! the knob was turned */
-    state = 0; // reset this value each time
-    state = state + digitalRead(pinA); // add the state of Pin A
-    state <<= 1; // shift the bit over one spot
-   state = state + digitalRead(pinB); // add the state of Pin B 
-   /* now we have a two bit binary number that holds the state of both pins 
-   00 - something is wrong we must have got here with a key bounce 
-   01 - sames as above - first bit should never be 0 
-   10 - knob was turned backwards 
-   11 - knob was turned forwards */
-  /* We can pull a value out of our truth table and add it to the current level */
-   level = level + bump[state]; /* Let's see what happened */
-   Serial.print(bits[state] + "   "); // show us the two bits
-   Serial.print(bump[state],DEC); // show us the direction of the turn
+ void knopfTurned(){
+    state = 0; // diesen Wert zurücksetzen
+    state = state + digitalRead(pinA); // state von Pin A addieren
+    state <<= 1; // state von pin A auf einer Seite verschieben
+   state = state + digitalRead(pinB); // state von  Pin B hinzufügen
+   
+   /* Dieser 2 states binden zur 1 binary nummer, es gibt 4 Möglichkeiten 
+   00 - Key bounce
+   01 - Key bounce - knopfTurned wird ausgelöst, wenn pin A RISING/ HIGH ist,
+       d.h, es darf nicht 0 sein
+   10 - knopf ist rückwärt gedrht 
+   11 - knob ist vorwärt gedreht */
+   
+  /*  bits array == bump array
+         00      --    0
+         01      --    0
+         10      --   -1
+         11      --    1  */
+   level = level + bump[state] * 2; //(*2) wenn knopf gedreht ist, addiert/subtrahiert der aktuelle Wert 2, statt 1
+   Serial.print(bits[state] + "   "); // bits im Monitor zeigen
+   Serial.print(bump[state],DEC); // bump oder Richtung im Decimal im Monitor zeigen
    Serial.print("   ");
-   Serial.println(level); // show us the new value
+   Serial.println(level); // neuen Wert zwigen
 }
  void forward(){
  /* Richtung vorwärt */
