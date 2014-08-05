@@ -1,56 +1,52 @@
- const byte pinA = 2; // encoder pin A to Arduino pin 2 which is also interrupt pin 0 which we will use
- const byte pinB = 3; // encoder pin B to Arduino pin 3 which is also interrupt pin 1 but we won't use it
+ const byte pinA = 2; // encoder pin A to Arduino pin 2, Interrupt Pin
+ const byte pinB = 3; // encoder pin B to Arduino pin 3
 
- byte state = 0; // will store two bits for pins A & B on the encoder which we will get from the pins above
+ byte state = 0; // Anfangwert von  Pin A & B
 
- int level = 0; // a value bumped up or down by the encoder
+ int speed; // speed ist intergers
 
- /* For demo purposes we will create an array of these binary digits */
+ /*array von 4 state, je nach Veränderung von Pin A & B, in Binary 
+ erste Nummer gehört zu entweder Pin A & 2. Nummer gehört zu Pin B oder umgekehrt */
  String bits[] = {"00","01","10","11"};
 
- /* A truth table of possible moves 1 for clockwise
- -1 for counter clockwwise 0 for error - keybounce */
- int bump[] = {0,0,-1,1};
+ /* wenn 
+ Mögliche Bewegung 
+ 1 für Uhrzeigersinn
+ -1 für Gegenuhrzeigersinn
+ 0 für Error - keybounce */
+ int bump[] = {0,0,-1,1}; 
 
  void setup(){
-    level = 50; // a value to start with -* Set up for using the on-screen monitor *-
-    Serial.begin(115200); // make sure your monitor baud rate matches this
-    Serial.println("Encoder Ready");
+    speed = 0; // Anfangwert = die GEschwindigkeit der Motoren
+    /* Set-up für Serial Monitor, um den wert zu kontrollieren */
+    Serial.begin(115200); // beachten monitor baud rate has das gleiche
+    Serial.println("Encoder Ready"); // Im Serial Monitor 
     Serial.print("level = ");
-    Serial.println(level); // to remind us where we're starting
-    pinMode(pinA,INPUT); // reads Pin A of the encoder
-    pinMode(pinB,INPUT); // reads Pin B of the encoder /* Writing to an Input pin turns on an internal pull up resistor */
+    Serial.println(level); // 
+    pinMode(pinA,INPUT); // Pin A & B von encoder sind input Typ
+    pinMode(pinB,INPUT);
+    /* Writing to an Input pin turns on an internal pull up resistor */
     digitalWrite(pinA,HIGH);
-    digitalWrite(pinB,HIGH); /* Set up to call our knob function any time pinA rises */
-    attachInterrupt(2,knobTurned,RISING); // calls our 'knobTurned()' function when pinA goes from LOW to HIGH 
+    digitalWrite(pinB,HIGH); 
+    /* Set up to call our knob function any time pinA rises */
+    attachInterrupt(0,knobTurned,RISING); // wenn pin A HIGH ist, verwendet knobTurned()
     
-    pinMode(22, OUTPUT); //Dir motor FL
-  pinMode(23, OUTPUT); //Hand-brake motor FL 
-  pinMode(24, OUTPUT); //Dir motor FL
-  pinMode(25, OUTPUT); //Hand-brake motor FR
-  pinMode(26, OUTPUT); //Dir motor FL
-  pinMode(27, OUTPUT); //Hand-brake motor BL
-  pinMode(28, OUTPUT); //Dir motor FL
-  pinMode(29, OUTPUT); //Hand-brake motor BR
+    pinMode(22, OUTPUT); //Direction motor FL
+    pinMode(23, OUTPUT); //Hand-brake motor FL 
+    pinMode(24, OUTPUT); //Dir motor FL
+    pinMode(25, OUTPUT); //Hand-brake motor FR
+    pinMode(26, OUTPUT); //Dir motor FL
+    pinMode(27, OUTPUT); //Hand-brake motor BL
+    pinMode(28, OUTPUT); //Dir motor FL
+    pinMode(29, OUTPUT); //Hand-brake motor BR
  }
 
  void loop(){
- digitalWrite(22, HIGH); 
-  digitalWrite(23, LOW);   
-  analogWrite(13, level);   
-  
-  digitalWrite(24, HIGH); 
-  digitalWrite(25, LOW);   
-  analogWrite(12, level);  
-  
-  digitalWrite(26, HIGH); 
-  digitalWrite(27, LOW);   
-  analogWrite(11, level);  
-  
-  digitalWrite(28, HIGH); 
-  digitalWrite(29, LOW);   
-  analogWrite(10, level);
-  knobTurned;
+ if (speed > 0) {
+  forward;
+ }
+ else {
+ backward;
  }
 
  void knobTurned(){
@@ -59,9 +55,11 @@
     state = state + digitalRead(pinA); // add the state of Pin A
     state <<= 1; // shift the bit over one spot
    state = state + digitalRead(pinB); // add the state of Pin B 
-   /* now we have a two bit binary number that holds the state of both pins 00 - 
-   something is wrong we must have got here with a key bounce 01 - sames as above - 
-   first bit should never be 0 10 - knob was turned backwards 11 - knob was turned forwards */
+   /* now we have a two bit binary number that holds the state of both pins 
+   00 - something is wrong we must have got here with a key bounce 
+   01 - sames as above - first bit should never be 0 
+   10 - knob was turned backwards 
+   11 - knob was turned forwards */
   /* We can pull a value out of our truth table and add it to the current level */
    level = level + bump[state]; /* Let's see what happened */
    Serial.print(bits[state] + "   "); // show us the two bits
@@ -69,3 +67,36 @@
    Serial.print("   ");
    Serial.println(level); // show us the new value
 }
+ void forward(){
+ /* Richtung vorwärt */
+  digitalWrite(22, HIGH); 
+  digitalWrite(24, HIGH); 
+  digitalWrite(26, HIGH); 
+  digitalWrite(28, HIGH);
+  
+ /*Gesschwindigkeit = speed */
+  analogWrite(13, speed);   
+  analogWrite(12, speed);  
+  analogWrite(11, speed);  
+  analogWrite(10, speed);
+ }
+ 
+ void backward(){
+ 
+ 
+ /* Richtung rückwärt */
+  digitalWrite(22, LOW); 
+  digitalWrite(24, LOW); 
+  digitalWrite(26, LOW); 
+  digitalWrite(28, LOW); 
+   /* Da arduino weiss, dass motor rückwärt spinnen müssen
+ , aber speed muss possiv Zahl sein. Deshalb ist * (-1) nötig */ 
+  int backwardSpeed = speed * (-1);
+  
+ /*Gesschwindigkeit = backwardSpeed */
+  analogWrite(13, backwardSpeed);   
+  analogWrite(12, backwardSpeed);  
+  analogWrite(11, backwardSpeed);  
+  analogWrite(10, backwardSpeed);
+  
+ }
