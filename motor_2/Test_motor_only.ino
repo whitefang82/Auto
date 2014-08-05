@@ -2,7 +2,6 @@ int level;
 
 void setup() {
   
-  //Setup Channel A
   pinMode(22, OUTPUT); //Dir motor FL
   pinMode(23, OUTPUT); //Hand-brake motor FL 
   pinMode(24, OUTPUT); //Dir motor FL
