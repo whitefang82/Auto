@@ -8,10 +8,10 @@ Servo servo1, servo2, servo3, servo4; //4 servos werden verbinden
 
 void setup() {
   // Servo  
-  servo1.attach(33, 900, 2100);  // servo FL
-  servo2.attach(35, 900, 2100);  // servo FR
-  servo3.attach(37, 900, 2100);  // servo BL
-  servo4.attach(39, 900, 2100);  // servo BR
+  servo1.attach(32, 900, 2100);  // servo FL
+  servo2.attach(33, 900, 2100);  // servo FR
+  servo3.attach(34, 900, 2100);  // servo BL
+  servo4.attach(35, 900, 2100);  // servo BR
   // Serial
   Serial.begin(9600);
 }
