@@ -25,7 +25,7 @@
     /* Set-up für Serial Monitor, um den wert zu kontrollieren */
     Serial.begin(115200); // beachten monitor baud rate has das gleiche
     Serial.println("Encoder Ready"); // Im Serial Monitor 
-    Serial.print("level = ");
+    Serial.print("speed = ");
     Serial.println(level); // 
     pinMode(pinA,INPUT); // Pin A & B von encoder sind input Typ
     pinMode(pinB,INPUT);
