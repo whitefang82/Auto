@@ -19,7 +19,7 @@ void setup() {
 void loop(){
     servoVal = analogRead(joyV);  // lesen den wert
     /*Der Wert geht von 0 bis 1023 -> von Links nach rechts
-    beim 1. Versuch liegt der Mittelwert zwischen 750-812*/
+    beim 1. Versuch liegt der Mittelwert 520*/
     if (servoVal <420)                  // nach Links
     {
       servo1.writeMicroseconds(2018);
